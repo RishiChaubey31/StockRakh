@@ -116,34 +116,49 @@ export default function PartDetailPage() {
     setUploading(true);
 
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          throw new Error(`File ${file.name} is not an image`);
+      const uploadPromises = Array.from(files).map(async (file, index) => {
+        try {
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            throw new Error(`File ${file.name} is not an image`);
+          }
+
+          // Check file size (max 10MB)
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          if (file.size > maxSize) {
+            throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
+          }
+
+          console.log(`Uploading file ${index + 1}/${files.length}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('folder', type === 'partImages' ? 'parts' : 'bills');
+
+          const response = await fetch('/api/upload/image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { error: errorText || 'Upload failed' };
+            }
+            console.error('Upload failed:', response.status, errorData);
+            throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log(`Successfully uploaded: ${file.name}`);
+          return data.url;
+        } catch (fileError: any) {
+          console.error(`Error uploading ${file.name}:`, fileError);
+          throw fileError;
         }
-
-        // Check file size (max 10MB)
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        if (file.size > maxSize) {
-          throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', type === 'partImages' ? 'parts' : 'bills');
-
-        const response = await fetch('/api/upload/image', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-          throw new Error(errorData.error || 'Upload failed');
-        }
-
-        const data = await response.json();
-        return data.url;
       });
 
       const urls = await Promise.all(uploadPromises);
@@ -159,7 +174,7 @@ export default function PartDetailPage() {
       e.target.value = '';
     } catch (error: any) {
       console.error('Error uploading images:', error);
-      const errorMessage = error.message || 'Failed to upload images. Please try again.';
+      const errorMessage = error.message || 'Failed to upload images. Please check your connection and try again.';
       alert(errorMessage);
     } finally {
       setUploading(false);
@@ -673,7 +688,6 @@ export default function PartDetailPage() {
                       type="file"
                       accept="image/*"
                       multiple
-                      capture="environment"
                       onChange={(e) => handleImageUpload(e, 'billImages')}
                       disabled={uploadingBillImages}
                       className="w-full px-4 py-3 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
