@@ -329,8 +329,8 @@ export default function PartsPage() {
                           <div 
                             className="flex h-full transition-transform duration-500 ease-in-out"
                             style={{ 
-                              transform: `translateX(-${(cardImageIndices[part._id] || 0) * (100 / part.partImages.length)}%)`,
-                              width: `${part.partImages.length * 100}%`
+                              transform: `translateX(-${(cardImageIndices[part._id] || 0) * (100 / (part.partImages?.length || 1))}%)`,
+                              width: `${(part.partImages?.length || 1) * 100}%`
                             }}
                             onClick={(e) => e.stopPropagation()}
                             onTouchStart={(e) => {
@@ -365,7 +365,7 @@ export default function PartsPage() {
                             }}
                           >
                             {part.partImages.map((img, idx) => (
-                              <div key={idx} className="flex-shrink-0 flex items-center justify-center" style={{ width: `${100 / part.partImages.length}%` }}>
+                              <div key={idx} className="flex-shrink-0 flex items-center justify-center" style={{ width: `${100 / (part.partImages?.length || 1)}%` }}>
                                 <img
                                   src={img}
                                   alt={`${part.partName} - Image ${idx + 1}`}
@@ -380,7 +380,9 @@ export default function PartsPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               const currentIdx = cardImageIndices[part._id] || 0;
-                              const newIdx = currentIdx > 0 ? currentIdx - 1 : part.partImages.length - 1;
+                              const imagesLength = part.partImages?.length || 0;
+                              if (imagesLength === 0) return;
+                              const newIdx = currentIdx > 0 ? currentIdx - 1 : imagesLength - 1;
                               setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
                             }}
                             className="absolute left-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation z-10"
@@ -393,7 +395,9 @@ export default function PartsPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               const currentIdx = cardImageIndices[part._id] || 0;
-                              const newIdx = currentIdx < part.partImages.length - 1 ? currentIdx + 1 : 0;
+                              const imagesLength = part.partImages?.length || 0;
+                              if (imagesLength === 0) return;
+                              const newIdx = currentIdx < imagesLength - 1 ? currentIdx + 1 : 0;
                               setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
                             }}
                             className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation z-10"
@@ -423,7 +427,7 @@ export default function PartsPage() {
                           
                           {/* Image Counter */}
                           <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
-                            {(cardImageIndices[part._id] || 0) + 1} / {part.partImages.length}
+                            {(cardImageIndices[part._id] || 0) + 1} / {part.partImages?.length || 0}
                           </div>
                         </div>
                       ) : (
