@@ -348,11 +348,14 @@ export default function PartsPage() {
                               
                               if (isLeftSwipe || isRightSwipe) {
                                 const currentIdx = cardImageIndices[part._id] || 0;
+                                const imagesLength = part.partImages?.length || 0;
+                                if (imagesLength === 0) return;
+                                
                                 let newIdx;
                                 if (isLeftSwipe) {
-                                  newIdx = currentIdx < part.partImages.length - 1 ? currentIdx + 1 : 0;
+                                  newIdx = currentIdx < imagesLength - 1 ? currentIdx + 1 : 0;
                                 } else {
-                                  newIdx = currentIdx > 0 ? currentIdx - 1 : part.partImages.length - 1;
+                                  newIdx = currentIdx > 0 ? currentIdx - 1 : imagesLength - 1;
                                 }
                                 setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
                               }
