@@ -102,6 +102,57 @@ export default function PartDetailPage() {
     }));
   };
 
+  const compressImage = (file: File, maxWidth: number = 1920, quality: number = 0.8): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to compress image'));
+                return;
+              }
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            },
+            file.type,
+            quality
+          );
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'partImages' | 'billImages'
@@ -123,16 +174,29 @@ export default function PartDetailPage() {
             throw new Error(`File ${file.name} is not an image`);
           }
 
-          // Check file size (max 10MB)
-          const maxSize = 10 * 1024 * 1024; // 10MB
-          if (file.size > maxSize) {
-            throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
+          console.log(`Processing file ${index + 1}/${files.length}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+          // Compress image if it's larger than 2MB
+          let fileToUpload = file;
+          if (file.size > 2 * 1024 * 1024) {
+            console.log(`Compressing ${file.name}...`);
+            fileToUpload = await compressImage(file, 1920, 0.8);
+            console.log(`Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB`);
           }
 
-          console.log(`Uploading file ${index + 1}/${files.length}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+          // Final size check (max 4MB after compression)
+          const maxSize = 4 * 1024 * 1024; // 4MB
+          if (fileToUpload.size > maxSize) {
+            // Try more aggressive compression
+            console.log(`File still too large, applying aggressive compression...`);
+            fileToUpload = await compressImage(file, 1280, 0.6);
+            if (fileToUpload.size > maxSize) {
+              throw new Error(`File ${file.name} is too large even after compression. Please use a smaller image.`);
+            }
+          }
 
           const formData = new FormData();
-          formData.append('file', file);
+          formData.append('file', fileToUpload);
           formData.append('folder', type === 'partImages' ? 'parts' : 'bills');
 
           const response = await fetch('/api/upload/image', {
