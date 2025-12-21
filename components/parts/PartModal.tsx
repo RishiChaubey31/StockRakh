@@ -79,13 +79,27 @@ export default function PartModal({ part, onClose }: PartModalProps) {
     type: 'partImages' | 'billImages'
   ) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      e.target.value = '';
+      return;
+    }
 
     const setUploading = type === 'partImages' ? setUploadingImages : setUploadingBills;
     setUploading(true);
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          throw new Error(`File ${file.name} is not an image`);
+        }
+
+        // Check file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', type === 'partImages' ? 'parts' : 'bills');
@@ -96,7 +110,8 @@ export default function PartModal({ part, onClose }: PartModalProps) {
         });
 
         if (!response.ok) {
-          throw new Error('Upload failed');
+          const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(errorData.error || 'Upload failed');
         }
 
         const data = await response.json();
@@ -108,11 +123,16 @@ export default function PartModal({ part, onClose }: PartModalProps) {
         ...prev,
         [type]: [...(prev[type] || []), ...urls],
       }));
-    } catch (error) {
+      
+      // Reset input to allow uploading the same file again
+      e.target.value = '';
+    } catch (error: any) {
       console.error('Error uploading images:', error);
-      alert('Failed to upload images. Please try again.');
+      const errorMessage = error.message || 'Failed to upload images. Please try again.';
+      alert(errorMessage);
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -349,9 +369,10 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               type="file"
               accept="image/*"
               multiple
+              capture="environment"
               onChange={(e) => handleImageUpload(e, 'partImages')}
               disabled={uploadingImages}
-              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 sm:py-2 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
             />
             {uploadingImages && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
@@ -386,9 +407,10 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               type="file"
               accept="image/*"
               multiple
+              capture="environment"
               onChange={(e) => handleImageUpload(e, 'billImages')}
               disabled={uploadingBills}
-              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 sm:py-2 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
             />
             {uploadingBills && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
