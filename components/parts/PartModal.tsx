@@ -198,10 +198,35 @@ export default function PartModal({ part, onClose }: PartModalProps) {
       });
 
       const urls = await Promise.all(uploadPromises);
-      setFormData((prev) => ({
-        ...prev,
-        [type]: [...(prev[type] || []), ...urls],
-      }));
+      console.log('Uploaded URLs:', urls);
+      
+      // Update formData with new images
+      const updatedFormData = {
+        ...formData,
+        [type]: [...(formData[type] || []), ...urls],
+      };
+      
+      setFormData(updatedFormData);
+      
+      // If editing an existing part, save immediately to persist images
+      if (part?._id) {
+        try {
+          const saveResponse = await fetch(`/api/parts/${part._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedFormData),
+          });
+
+          if (!saveResponse.ok) {
+            throw new Error('Failed to save images');
+          }
+
+          console.log('Images saved successfully');
+        } catch (saveError: any) {
+          console.error('Error saving images:', saveError);
+          alert('Images uploaded but failed to save. They will be saved when you submit the form.');
+        }
+      }
       
       // Reset input to allow uploading the same file again
       e.target.value = '';

@@ -226,13 +226,35 @@ export default function PartDetailPage() {
       });
 
       const urls = await Promise.all(uploadPromises);
-      setFormData((prev) => ({
-        ...prev,
-        [type]: [...(prev[type] || []), ...urls],
-      }));
+      console.log('Uploaded URLs:', urls);
       
-      // Refresh part data
-      fetchPart();
+      // Update formData with new images
+      const updatedFormData = {
+        ...formData,
+        [type]: [...(formData[type] || []), ...urls],
+      };
+      
+      setFormData(updatedFormData);
+      
+      // Immediately save the part to persist the new images
+      try {
+        const saveResponse = await fetch(`/api/parts/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedFormData),
+        });
+
+        if (!saveResponse.ok) {
+          throw new Error('Failed to save images');
+        }
+
+        // Refresh part data to get the updated part
+        await fetchPart();
+        console.log('Images saved successfully');
+      } catch (saveError: any) {
+        console.error('Error saving images:', saveError);
+        alert('Images uploaded but failed to save. Please try saving manually.');
+      }
       
       // Reset input
       e.target.value = '';
