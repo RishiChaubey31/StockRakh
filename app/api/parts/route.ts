@@ -6,10 +6,33 @@ import { createActivity } from '@/lib/models/activity';
 
 async function handleGET(request: NextRequest, userId: string) {
   try {
-    const collection = await getInventoryCollection();
-    const parts = await collection.find({}).sort({ createdAt: -1 }).toArray();
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '20', 20);
+    const skip = (page - 1) * limit;
     
-    return NextResponse.json({ parts });
+    const collection = await getInventoryCollection();
+    
+    // Get total count
+    const total = await collection.countDocuments();
+    
+    // Get paginated parts
+    const parts = await collection
+      .find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    
+    return NextResponse.json({
+      parts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error('Error fetching parts:', error);
     return NextResponse.json(

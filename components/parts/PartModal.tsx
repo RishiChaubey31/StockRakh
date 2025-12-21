@@ -152,24 +152,24 @@ export default function PartModal({ part, onClose }: PartModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-none sm:rounded-lg max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10">
+          <h2 className="text-lg sm:text-xl font-semibold">
             {part ? 'Edit Part' : 'Add New Part'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 active:text-gray-800 text-2xl w-10 h-10 flex items-center justify-center touch-manipulation"
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Part Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -178,12 +178,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 required
                 value={formData.partName || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Part Number <span className="text-red-500">*</span>
               </label>
               <input
@@ -192,12 +192,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 required
                 value={formData.partNumber || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Code
               </label>
               <input
@@ -206,12 +206,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 value={formData.code || ''}
                 onChange={handleInputChange}
                 placeholder="Uppercase letters only"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase font-mono"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Quantity <span className="text-red-500">*</span>
               </label>
               <input
@@ -221,12 +221,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 min="0"
                 value={formData.quantity || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Unit of Measure <span className="text-red-500">*</span>
               </label>
               <select
@@ -234,7 +234,7 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 required
                 value={formData.unitOfMeasure || 'pcs'}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
               >
                 <option value="pcs">Pieces</option>
                 <option value="kg">Kilograms</option>
@@ -245,7 +245,7 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Location <span className="text-red-500">*</span>
               </label>
               <input
@@ -254,12 +254,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 required
                 value={formData.location || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Brand
               </label>
               <input
@@ -267,12 +267,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 name="brand"
                 value={formData.brand || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Buying Price (₹)
               </label>
               <input
@@ -282,12 +282,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 step="0.01"
                 value={formData.buyingPrice || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 MRP (₹)
               </label>
               <input
@@ -297,12 +297,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 step="0.01"
                 value={formData.mrp || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Supplier
               </label>
               <input
@@ -310,12 +310,12 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 name="supplier"
                 value={formData.supplier || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Billing Date
               </label>
               <input
@@ -323,13 +323,13 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 name="billingDate"
                 value={formData.billingDate || ''}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Description
             </label>
             <textarea
@@ -337,7 +337,7 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               rows={3}
               value={formData.description || ''}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
             />
           </div>
 
@@ -351,24 +351,24 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               multiple
               onChange={(e) => handleImageUpload(e, 'partImages')}
               disabled={uploadingImages}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             {uploadingImages && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
             )}
             {formData.partImages && formData.partImages.length > 0 && (
-              <div className="mt-2 grid grid-cols-4 gap-2">
+              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {formData.partImages.map((url, index) => (
                   <div key={index} className="relative">
                     <img
                       src={url}
                       alt={`Part ${index + 1}`}
-                      className="w-full h-24 object-cover rounded"
+                      className="w-full h-24 sm:h-20 object-cover rounded"
                     />
                     <button
                       type="button"
                       onClick={() => removeImage(url, 'partImages')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-lg sm:text-xs touch-manipulation"
                     >
                       ×
                     </button>
@@ -388,24 +388,24 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               multiple
               onChange={(e) => handleImageUpload(e, 'billImages')}
               disabled={uploadingBills}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             {uploadingBills && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
             )}
             {formData.billImages && formData.billImages.length > 0 && (
-              <div className="mt-2 grid grid-cols-4 gap-2">
+              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {formData.billImages.map((url, index) => (
                   <div key={index} className="relative">
                     <img
                       src={url}
                       alt={`Bill ${index + 1}`}
-                      className="w-full h-24 object-cover rounded"
+                      className="w-full h-24 sm:h-20 object-cover rounded"
                     />
                     <button
                       type="button"
                       onClick={() => removeImage(url, 'billImages')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-lg sm:text-xs touch-manipulation"
                     >
                       ×
                     </button>
@@ -415,18 +415,18 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             )}
           </div>
 
-          <div className="flex justify-end gap-4 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t sticky bottom-0 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6 pb-4 sm:pb-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation min-h-[44px]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 touch-manipulation min-h-[44px] font-medium"
             >
               {loading ? 'Saving...' : part ? 'Update Part' : 'Add Part'}
             </button>

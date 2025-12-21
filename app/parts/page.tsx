@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageModal from '@/components/parts/ImageModal';
 
 interface Part {
   _id: string;
@@ -22,12 +23,32 @@ interface Part {
   billImages?: string[];
 }
 
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export default function PartsPage() {
   const router = useRouter();
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const partsPerPage = 20;
+  const [imageModal, setImageModal] = useState<{
+    open: boolean;
+    images: string[];
+    currentIndex: number;
+    partName: string;
+    partId: string;
+  } | null>(null);
+  const [cardImageIndices, setCardImageIndices] = useState<Record<string, number>>({});
+  const [touchStart, setTouchStart] = useState<Record<string, number>>({});
+  const [touchEnd, setTouchEnd] = useState<Record<string, number>>({});
 
   useEffect(() => {
     checkAuth();
@@ -35,9 +56,18 @@ export default function PartsPage() {
 
   useEffect(() => {
     if (authenticated) {
-      fetchParts();
+      setCurrentPage(1); // Reset to page 1 when search changes
+      fetchParts(1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, searchQuery]);
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchParts(currentPage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
   const checkAuth = async () => {
     try {
@@ -55,18 +85,19 @@ export default function PartsPage() {
     }
   };
 
-  const fetchParts = async () => {
+  const fetchParts = async (page: number = currentPage) => {
     setLoading(true);
     try {
       const url = searchQuery
-        ? `/api/parts/search?q=${encodeURIComponent(searchQuery)}`
-        : '/api/parts';
+        ? `/api/parts/search?q=${encodeURIComponent(searchQuery)}&page=${page}&limit=${partsPerPage}`
+        : `/api/parts?page=${page}&limit=${partsPerPage}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch parts');
       }
       const data = await response.json();
       setParts(data.parts || []);
+      setPagination(data.pagination || null);
     } catch (error) {
       console.error('Error fetching parts:', error);
     } finally {
@@ -95,6 +126,119 @@ export default function PartsPage() {
     }
   };
 
+  const handleImageClick = (e: React.MouseEvent, part: Part) => {
+    e.stopPropagation();
+    if (part.partImages && part.partImages.length > 0) {
+      setImageModal({
+        open: true,
+        images: part.partImages,
+        currentIndex: 0,
+        partName: part.partName,
+        partId: part._id,
+      });
+    }
+  };
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    if (!imageModal) return;
+
+    try {
+      // Get current part
+      const part = parts.find((p) => p._id === imageModal.partId);
+      if (!part) return;
+
+      // Remove image from part
+      const updatedImages = part.partImages?.filter((img) => img !== imageUrl) || [];
+
+      const response = await fetch(`/api/parts/${imageModal.partId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...part,
+          partImages: updatedImages,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete image');
+      }
+
+      // Update local state
+      if (updatedImages.length === 0) {
+        setImageModal(null);
+        fetchParts();
+      } else {
+        setImageModal({
+          ...imageModal,
+          images: updatedImages,
+          currentIndex: Math.min(imageModal.currentIndex, updatedImages.length - 1),
+        });
+        fetchParts();
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('Failed to delete image. Please try again.');
+    }
+  };
+
+  const handleAddImages = async (files: File[]) => {
+    if (!imageModal) return;
+
+    try {
+      // Upload images
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'parts');
+
+        const response = await fetch('/api/upload/image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        return data.url;
+      });
+
+      const urls = await Promise.all(uploadPromises);
+
+      // Get current part
+      const part = parts.find((p) => p._id === imageModal.partId);
+      if (!part) return;
+
+      // Add images to part
+      const updatedImages = [...(part.partImages || []), ...urls];
+
+      const response = await fetch(`/api/parts/${imageModal.partId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...part,
+          partImages: updatedImages,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update part');
+      }
+
+      // Update modal with new images
+      setImageModal({
+        ...imageModal,
+        images: updatedImages,
+      });
+
+      fetchParts();
+    } catch (error) {
+      console.error('Error adding images:', error);
+      throw error;
+    }
+  };
+
   const handleAdd = () => {
     router.push('/parts/new');
   };
@@ -109,19 +253,19 @@ export default function PartsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Parts Inventory</h1>
-          <div className="flex gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Parts Inventory</h1>
+          <div className="flex flex-wrap gap-2 sm:gap-4">
             <Link
               href="/dashboard"
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-600 text-white rounded-md hover:bg-gray-700 active:bg-gray-800 touch-manipulation"
             >
               Dashboard
             </Link>
             <button
               onClick={handleAdd}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:bg-indigo-800 touch-manipulation flex-1 sm:flex-initial"
             >
               Add New Part
             </button>
@@ -130,20 +274,20 @@ export default function PartsPage() {
                 await fetch('/api/auth/logout', { method: 'POST' });
                 router.push('/login');
               }}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-600 text-white rounded-md hover:bg-gray-700 active:bg-gray-800 touch-manipulation"
             >
               Logout
             </button>
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <input
             type="text"
-            placeholder="Search parts by name, number, code, brand, supplier, location, or description..."
+            placeholder="Search parts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+            className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
           />
         </div>
 
@@ -166,44 +310,157 @@ export default function PartsPage() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {parts.map((part) => (
               <div
                 key={part._id}
                 onClick={() => router.push(`/parts/${part._id}`)}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col"
+                className="bg-white rounded-lg shadow-md hover:shadow-lg active:shadow-xl transition-shadow cursor-pointer overflow-hidden flex flex-col"
               >
-                <div className="aspect-square bg-white flex items-center justify-center overflow-hidden relative p-4">
+                <div 
+                  className="h-32 sm:h-40 bg-white flex items-center justify-center overflow-hidden relative p-2 sm:p-3 cursor-pointer group"
+                  onClick={(e) => handleImageClick(e, part)}
+                >
                   {part.partImages && part.partImages.length > 0 ? (
-                    <img
-                      src={part.partImages[0]}
-                      alt={part.partName}
-                      className="max-w-full max-h-full w-full h-full object-contain"
-                    />
+                    <>
+                      {part.partImages.length > 1 ? (
+                        <div className="relative w-full h-full overflow-hidden">
+                          {/* Scrollable Image Container */}
+                          <div 
+                            className="flex h-full transition-transform duration-500 ease-in-out"
+                            style={{ 
+                              transform: `translateX(-${(cardImageIndices[part._id] || 0) * (100 / part.partImages.length)}%)`,
+                              width: `${part.partImages.length * 100}%`
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => {
+                              setTouchStart({ ...touchStart, [part._id]: e.targetTouches[0].clientX });
+                            }}
+                            onTouchMove={(e) => {
+                              setTouchEnd({ ...touchEnd, [part._id]: e.targetTouches[0].clientX });
+                            }}
+                            onTouchEnd={() => {
+                              if (!touchStart[part._id] || !touchEnd[part._id]) return;
+                              
+                              const distance = touchStart[part._id] - touchEnd[part._id];
+                              const isLeftSwipe = distance > 50;
+                              const isRightSwipe = distance < -50;
+                              
+                              if (isLeftSwipe || isRightSwipe) {
+                                const currentIdx = cardImageIndices[part._id] || 0;
+                                let newIdx;
+                                if (isLeftSwipe) {
+                                  newIdx = currentIdx < part.partImages.length - 1 ? currentIdx + 1 : 0;
+                                } else {
+                                  newIdx = currentIdx > 0 ? currentIdx - 1 : part.partImages.length - 1;
+                                }
+                                setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
+                              }
+                              
+                              setTouchStart({ ...touchStart, [part._id]: 0 });
+                              setTouchEnd({ ...touchEnd, [part._id]: 0 });
+                            }}
+                          >
+                            {part.partImages.map((img, idx) => (
+                              <div key={idx} className="flex-shrink-0 flex items-center justify-center" style={{ width: `${100 / part.partImages.length}%` }}>
+                                <img
+                                  src={img}
+                                  alt={`${part.partName} - Image ${idx + 1}`}
+                                  className="max-w-full max-h-full w-auto h-auto object-contain"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Navigation Arrows */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const currentIdx = cardImageIndices[part._id] || 0;
+                              const newIdx = currentIdx > 0 ? currentIdx - 1 : part.partImages.length - 1;
+                              setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
+                            }}
+                            className="absolute left-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation z-10"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const currentIdx = cardImageIndices[part._id] || 0;
+                              const newIdx = currentIdx < part.partImages.length - 1 ? currentIdx + 1 : 0;
+                              setCardImageIndices({ ...cardImageIndices, [part._id]: newIdx });
+                            }}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity touch-manipulation z-10"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                          
+                          {/* Image Indicator Dots */}
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                            {part.partImages.map((_, idx) => (
+                              <button
+                                key={idx}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCardImageIndices({ ...cardImageIndices, [part._id]: idx });
+                                }}
+                                className={`w-1.5 h-1.5 rounded-full transition-all touch-manipulation ${
+                                  (cardImageIndices[part._id] || 0) === idx 
+                                    ? 'bg-white w-4' 
+                                    : 'bg-white/50 hover:bg-white/75'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          
+                          {/* Image Counter */}
+                          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
+                            {(cardImageIndices[part._id] || 0) + 1} / {part.partImages.length}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={part.partImages[0]}
+                            alt={part.partName}
+                            className="max-w-full max-h-full w-auto h-auto object-contain"
+                          />
+                        </>
+                      )}
+                    </>
                   ) : (
-                    <div className="text-gray-400 text-sm">No Image</div>
+                    <div className="text-gray-400 text-xs sm:text-sm">No Image</div>
                   )}
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">
+                <div className="p-2 sm:p-3 flex-1 flex flex-col">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-1 mb-1">
                     {part.partName}
                   </h3>
-                  <div className="space-y-1 text-sm text-gray-600 mb-3 flex-1">
-                    <div>Part No.: {part.partNumber}</div>
-                    {part.code && <div className="font-mono">Code: {part.code}</div>}
-                    {part.brand && <div>Brand: {part.brand}</div>}
-                    <div>Location: {part.location}</div>
+                  <div className="space-y-0.5 text-xs sm:text-sm text-gray-600 mb-2">
+                    <div className="truncate">No: {part.partNumber}</div>
+                    {part.code && <div className="font-mono truncate">Code: {part.code}</div>}
+                    {part.brand && <div className="truncate">Brand: {part.brand}</div>}
+                    <div className="truncate">Loc: {part.location}</div>
                   </div>
-                  <div className="flex items-center justify-between mb-3">
-                    {part.buyingPrice ? (
-                      <div className="text-xl font-bold text-gray-900">
+                  <div className="flex items-center justify-between mb-2">
+                    {part.mrp ? (
+                      <div className="text-base sm:text-lg font-bold text-gray-900">
+                        ₹{part.mrp.toLocaleString('en-IN')}
+                      </div>
+                    ) : part.buyingPrice ? (
+                      <div className="text-base sm:text-lg font-bold text-gray-900">
                         ₹{part.buyingPrice.toLocaleString('en-IN')}
                       </div>
                     ) : (
-                      <div className="text-lg text-gray-500">No Price</div>
+                      <div className="text-sm sm:text-base text-gray-500">No Price</div>
                     )}
-                    <div className="text-sm text-gray-500">
-                      Qty: {part.quantity} {part.unitOfMeasure}
+                    <div className="text-xs sm:text-sm text-gray-500">
+                      {part.quantity} {part.unitOfMeasure}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -212,16 +469,16 @@ export default function PartsPage() {
                         e.stopPropagation();
                         router.push(`/parts/${part._id}`);
                       }}
-                      className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium"
+                      className="flex-1 bg-indigo-600 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors text-xs sm:text-sm font-medium touch-manipulation"
                     >
-                      View Details
+                      View
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(part._id, part.partName);
                       }}
-                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      className="px-2.5 sm:px-3 py-2 sm:py-2.5 text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                       title="Delete"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +492,48 @@ export default function PartsPage() {
           </div>
         )}
 
+        {pagination && pagination.totalPages > 1 && (
+          <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row items-center justify-between bg-white rounded-lg shadow px-4 sm:px-6 py-3 sm:py-4 gap-3">
+            <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
+              Showing {((currentPage - 1) * partsPerPage) + 1} - {Math.min(currentPage * partsPerPage, pagination.total)} of {pagination.total}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
+              >
+                Previous
+              </button>
+              <span className="text-xs sm:text-sm text-gray-700 px-2">
+                {currentPage}/{pagination.totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
+                disabled={currentPage >= pagination.totalPages}
+                className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
+
+      {/* Image Modal */}
+      {imageModal && imageModal.open && (
+        <ImageModal
+          images={imageModal.images}
+          currentIndex={imageModal.currentIndex}
+          partName={imageModal.partName}
+          partId={imageModal.partId}
+          onClose={() => setImageModal(null)}
+          onDelete={handleDeleteImage}
+          onAddImages={handleAddImages}
+          isEditable={true}
+        />
+      )}
     </div>
   );
 }

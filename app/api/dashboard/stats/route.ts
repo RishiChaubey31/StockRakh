@@ -5,6 +5,11 @@ import { getActivityCollection } from '@/lib/models/activity';
 
 async function handleGET(request: NextRequest, userId: string) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const skip = (page - 1) * limit;
+    
     const collection = await getInventoryCollection();
     const activityCollection = await getActivityCollection();
     
@@ -20,17 +25,27 @@ async function handleGET(request: NextRequest, userId: string) {
       return sum;
     }, 0);
     
-    // Get recent activities (last 10)
+    // Get paginated activities
+    const totalActivities = await activityCollection.countDocuments();
     const recentActivities = await activityCollection
       .find({})
       .sort({ createdAt: -1 })
-      .limit(10)
+      .skip(skip)
+      .limit(limit)
       .toArray();
     
     return NextResponse.json({
       totalParts,
       totalValue,
-      recentActivities,
+      activities: {
+        data: recentActivities,
+        pagination: {
+          page,
+          limit,
+          total: totalActivities,
+          totalPages: Math.ceil(totalActivities / limit),
+        },
+      },
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
