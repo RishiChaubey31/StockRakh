@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/middleware/auth';
 import { getInventoryCollection } from '@/lib/models/inventory';
 import { inventoryItemSchema } from '@/lib/validators/inventory';
 import { createActivity } from '@/lib/models/activity';
+import { deleteMultipleImagesByUrls } from '@/lib/services/cloudinary';
 
 async function handleGET(
   request: NextRequest,
@@ -61,6 +62,32 @@ async function handlePUT(
       return NextResponse.json({ error: 'Part not found' }, { status: 404 });
     }
     
+    // Detect removed images and delete them from Cloudinary
+    const existingPartImages = existingPart.partImages || [];
+    const existingBillImages = existingPart.billImages || [];
+    const newPartImages = validated.partImages || [];
+    const newBillImages = validated.billImages || [];
+    
+    // Find images that were removed (present in existing but not in new)
+    const removedPartImages = existingPartImages.filter(
+      (url: string) => !newPartImages.includes(url)
+    );
+    const removedBillImages = existingBillImages.filter(
+      (url: string) => !newBillImages.includes(url)
+    );
+    const removedImages = [...removedPartImages, ...removedBillImages];
+    
+    // Delete removed images from Cloudinary
+    if (removedImages.length > 0) {
+      console.log(`Deleting ${removedImages.length} removed images from Cloudinary for part ${id}`);
+      const deleteResult = await deleteMultipleImagesByUrls(removedImages);
+      console.log(`Cloudinary cleanup: ${deleteResult.successCount}/${removedImages.length} images deleted`);
+      
+      if (deleteResult.failedUrls.length > 0) {
+        console.warn(`Failed to delete ${deleteResult.failedUrls.length} images from Cloudinary:`, deleteResult.failedUrls);
+      }
+    }
+    
     const updateData = {
       ...validated,
       billingDate: validated.billingDate ? new Date(validated.billingDate) : undefined,
@@ -80,7 +107,10 @@ async function handlePUT(
     
     await createActivity(activityType, validated.partName, validated.partNumber, id, details);
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      imagesDeleted: removedImages.length
+    });
   } catch (error: any) {
     if (error.name === 'ZodError') {
       return NextResponse.json(
@@ -118,12 +148,34 @@ async function handleDELETE(
       return NextResponse.json({ error: 'Part not found' }, { status: 404 });
     }
     
+    // Collect all image URLs to delete from Cloudinary
+    const imageUrls: string[] = [
+      ...(part.partImages || []),
+      ...(part.billImages || []),
+    ];
+    
+    // Delete images from Cloudinary first
+    if (imageUrls.length > 0) {
+      console.log(`Deleting ${imageUrls.length} images from Cloudinary for part ${id}`);
+      const deleteResult = await deleteMultipleImagesByUrls(imageUrls);
+      console.log(`Cloudinary cleanup: ${deleteResult.successCount}/${imageUrls.length} images deleted`);
+      
+      // Log any failed deletions but continue with database deletion
+      if (deleteResult.failedUrls.length > 0) {
+        console.warn(`Failed to delete ${deleteResult.failedUrls.length} images from Cloudinary:`, deleteResult.failedUrls);
+      }
+    }
+    
+    // Delete the database record
     await collection.deleteOne({ _id: new ObjectId(id) });
     
     // Log activity
     await createActivity('delete', part.partName, part.partNumber, id);
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      imagesDeleted: imageUrls.length > 0 ? imageUrls.length : 0
+    });
   } catch (error) {
     console.error('Error deleting part:', error);
     return NextResponse.json(
