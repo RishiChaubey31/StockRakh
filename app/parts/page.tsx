@@ -318,7 +318,7 @@ export default function PartsPage() {
                 className="bg-white rounded-lg shadow-md hover:shadow-lg active:shadow-xl transition-shadow cursor-pointer overflow-hidden flex flex-col"
               >
                 <div 
-                  className="h-32 sm:h-40 bg-white flex items-center justify-center overflow-hidden relative p-2 sm:p-3 cursor-pointer group"
+                  className="h-28 sm:h-32 bg-white flex items-center justify-center overflow-hidden relative p-1.5 sm:p-2 cursor-pointer group"
                   onClick={(e) => handleImageClick(e, part)}
                 >
                   {part.partImages && part.partImages.length > 0 ? (
@@ -444,30 +444,33 @@ export default function PartsPage() {
                     <div className="text-gray-400 text-xs sm:text-sm">No Image</div>
                   )}
                 </div>
-                <div className="p-2 sm:p-3 flex-1 flex flex-col">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-1 mb-1">
+                <div className="p-2 sm:p-2.5 flex-1 flex flex-col">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-1 mb-0.5">
                     {part.partName}
                   </h3>
-                  <div className="space-y-0.5 text-xs sm:text-sm text-gray-600 mb-2">
-                    <div className="truncate">No: {part.partNumber}</div>
-                    {part.code && <div className="font-mono truncate">Code: {part.code}</div>}
-                    {part.brand && <div className="truncate">Brand: {part.brand}</div>}
-                    <div className="truncate">Loc: {part.location}</div>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    {part.mrp ? (
-                      <div className="text-base sm:text-lg font-bold text-gray-900">
-                        ₹{part.mrp.toLocaleString('en-IN')}
-                      </div>
-                    ) : part.buyingPrice ? (
-                      <div className="text-base sm:text-lg font-bold text-gray-900">
-                        ₹{part.buyingPrice.toLocaleString('en-IN')}
-                      </div>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs sm:text-sm text-gray-600 mb-1.5">
+                    <div className="break-words">Part No: {part.partNumber}</div>
+                    {part.code ? (
+                      <div className="font-mono break-words">Code: {part.code}</div>
                     ) : (
-                      <div className="text-sm sm:text-base text-gray-500">No Price</div>
+                      <div />
                     )}
-                    <div className="text-xs sm:text-sm text-gray-500">
-                      {part.quantity} {part.unitOfMeasure}
+                    {part.brand ? (
+                      <div className="break-words">Brand: {part.brand}</div>
+                    ) : (
+                      <div />
+                    )}
+                    <div className="break-words">Location: {part.location}</div>
+                    <div className="break-words">Pieces: {part.quantity} {part.unitOfMeasure}</div>
+                    <div className="break-words">
+                      MRP:{' '}
+                      <span className="font-semibold text-gray-900">
+                        {part.mrp
+                          ? `₹${part.mrp.toLocaleString('en-IN')}`
+                          : part.buyingPrice
+                            ? `₹${part.buyingPrice.toLocaleString('en-IN')}`
+                            : '—'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -476,7 +479,7 @@ export default function PartsPage() {
                         e.stopPropagation();
                         router.push(`/parts/${part._id}`);
                       }}
-                      className="flex-1 bg-indigo-600 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors text-xs sm:text-sm font-medium touch-manipulation"
+                      className="flex-1 bg-indigo-600 text-white py-1.5 sm:py-2 px-3 sm:px-4 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors text-xs sm:text-sm font-medium touch-manipulation"
                     >
                       View
                     </button>
@@ -485,7 +488,7 @@ export default function PartsPage() {
                         e.stopPropagation();
                         handleDelete(part._id, part.partName);
                       }}
-                      className="px-2.5 sm:px-3 py-2 sm:py-2.5 text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                      className="px-2.5 sm:px-3 py-1.5 sm:py-2 text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                       title="Delete"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
