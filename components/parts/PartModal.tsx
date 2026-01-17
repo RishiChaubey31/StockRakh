@@ -469,14 +469,39 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Part Images
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => handleImageUpload(e, 'partImages')}
-              disabled={uploadingImages}
-              className="w-full px-4 py-3 sm:py-2 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-            />
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label
+                htmlFor="part-images-camera"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+              >
+                Take Photo
+              </label>
+              <label
+                htmlFor="part-images-gallery"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+              >
+                Choose from Gallery
+              </label>
+              <input
+                id="part-images-camera"
+                type="file"
+                accept="image/*"
+                multiple
+                capture="environment"
+                onChange={(e) => handleImageUpload(e, 'partImages')}
+                disabled={uploadingImages}
+                className="hidden"
+              />
+              <input
+                id="part-images-gallery"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleImageUpload(e, 'partImages')}
+                disabled={uploadingImages}
+                className="hidden"
+              />
+            </div>
             {uploadingImages && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
             )}
@@ -506,14 +531,39 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Bill Images
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => handleImageUpload(e, 'billImages')}
-              disabled={uploadingBills}
-              className="w-full px-4 py-3 sm:py-2 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-            />
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label
+                htmlFor="bill-images-camera"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+              >
+                Take Photo
+              </label>
+              <label
+                htmlFor="bill-images-gallery"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+              >
+                Choose from Gallery
+              </label>
+              <input
+                id="bill-images-camera"
+                type="file"
+                accept="image/*"
+                multiple
+                capture="environment"
+                onChange={(e) => handleImageUpload(e, 'billImages')}
+                disabled={uploadingBills}
+                className="hidden"
+              />
+              <input
+                id="bill-images-gallery"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleImageUpload(e, 'billImages')}
+                disabled={uploadingBills}
+                className="hidden"
+              />
+            </div>
             {uploadingBills && (
               <p className="text-sm text-gray-500 mt-1">Uploading...</p>
             )}

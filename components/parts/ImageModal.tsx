@@ -118,17 +118,31 @@ export default function ImageModal({
           <div className="flex items-center gap-2">
             {isEditable && onAddImages && (
               <>
-                <label className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer touch-manipulation text-sm sm:text-base min-h-[44px] flex items-center">
-                  {uploading ? 'Uploading...' : 'Add Images'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileSelect}
-                    disabled={uploading}
-                    className="hidden"
-                  />
-                </label>
+                <div className="flex items-center gap-2">
+                  <label className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer touch-manipulation text-sm sm:text-base min-h-[44px] flex items-center">
+                    {uploading ? 'Uploading...' : 'Take Photo'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      capture="environment"
+                      onChange={handleFileSelect}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                  <label className="px-3 sm:px-4 py-2 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer touch-manipulation text-sm sm:text-base min-h-[44px] flex items-center">
+                    {uploading ? 'Uploading...' : 'Choose from Gallery'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileSelect}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </>
             )}
             <button

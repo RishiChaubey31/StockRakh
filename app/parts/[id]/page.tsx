@@ -530,15 +530,39 @@ export default function PartDetailPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                       Upload Part Images
                     </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      capture="environment"
-                      onChange={(e) => handleImageUpload(e, 'partImages')}
-                      disabled={uploadingPartImages}
-                      className="w-full px-4 py-3 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    />
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <label
+                        htmlFor="edit-part-images-camera"
+                        className="w-full sm:w-auto px-4 py-3 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+                      >
+                        Take Photo
+                      </label>
+                      <label
+                        htmlFor="edit-part-images-gallery"
+                        className="w-full sm:w-auto px-4 py-3 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+                      >
+                        Choose from Gallery
+                      </label>
+                      <input
+                        id="edit-part-images-camera"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        capture="environment"
+                        onChange={(e) => handleImageUpload(e, 'partImages')}
+                        disabled={uploadingPartImages}
+                        className="hidden"
+                      />
+                      <input
+                        id="edit-part-images-gallery"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleImageUpload(e, 'partImages')}
+                        disabled={uploadingPartImages}
+                        className="hidden"
+                      />
+                    </div>
                     {uploadingPartImages && (
                       <p className="text-sm text-indigo-600 mt-2 font-medium">Uploading images...</p>
                     )}
@@ -770,14 +794,39 @@ export default function PartDetailPage() {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">Billing Images</h2>
                 {isEditing && (
                   <div className="mb-4 bg-white rounded-lg p-4 border-2 border-dashed border-gray-300">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => handleImageUpload(e, 'billImages')}
-                      disabled={uploadingBillImages}
-                      className="w-full px-4 py-3 text-base border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    />
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <label
+                        htmlFor="edit-bill-images-camera"
+                        className="w-full sm:w-auto px-4 py-3 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+                      >
+                        Take Photo
+                      </label>
+                      <label
+                        htmlFor="edit-bill-images-gallery"
+                        className="w-full sm:w-auto px-4 py-3 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+                      >
+                        Choose from Gallery
+                      </label>
+                      <input
+                        id="edit-bill-images-camera"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        capture="environment"
+                        onChange={(e) => handleImageUpload(e, 'billImages')}
+                        disabled={uploadingBillImages}
+                        className="hidden"
+                      />
+                      <input
+                        id="edit-bill-images-gallery"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleImageUpload(e, 'billImages')}
+                        disabled={uploadingBillImages}
+                        className="hidden"
+                      />
+                    </div>
                     {uploadingBillImages && (
                       <p className="text-sm text-indigo-600 mt-2 font-medium">Uploading images...</p>
                     )}
