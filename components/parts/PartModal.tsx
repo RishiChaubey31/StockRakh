@@ -276,182 +276,209 @@ export default function PartModal({ part, onClose }: PartModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white rounded-none sm:rounded-lg max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10">
-          <h2 className="text-lg sm:text-xl font-semibold">
-            {part ? 'Edit Part' : 'Add New Part'}
-          </h2>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-5 sm:px-6 py-4 sm:py-5 flex justify-between items-center z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                {part ? 'Edit Part' : 'Add New Part'}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {part ? 'Update part information' : 'Fill in the details below'}
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 active:text-gray-800 text-2xl w-10 h-10 flex items-center justify-center touch-manipulation"
+            className="text-gray-400 hover:text-gray-600 active:text-gray-800 w-10 h-10 flex items-center justify-center touch-manipulation rounded-lg hover:bg-gray-100 transition-colors"
           >
-            ✕
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Part Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="partName"
-                required
-                value={formData.partName || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
+          {/* Basic Information Section */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Part Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="partName"
+                  required
+                  value={formData.partName || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Part Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="partNumber"
-                required
-                value={formData.partNumber || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Part Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="partNumber"
+                  required
+                  value={formData.partNumber || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Code
-              </label>
-              <input
-                type="text"
-                name="code"
-                value={formData.code || ''}
-                onChange={handleInputChange}
-                placeholder="Uppercase letters only"
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 uppercase font-mono"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Code
+                </label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code || ''}
+                  onChange={handleInputChange}
+                  placeholder="Uppercase letters only"
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 uppercase font-mono bg-white transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="quantity"
-                required
-                min="0"
-                value={formData.quantity || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Brand
+                </label>
+                <input
+                  type="text"
+                  name="brand"
+                  value={formData.brand || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Unit of Measure <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="unitOfMeasure"
-                required
-                value={formData.unitOfMeasure || 'pcs'}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-              >
-                <option value="pcs">Pieces</option>
-                <option value="kg">Kilograms</option>
-                <option value="liters">Liters</option>
-                <option value="meters">Meters</option>
-                <option value="boxes">Boxes</option>
-              </select>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Location <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  required
+                  value={formData.location || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Location <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="location"
-                required
-                value={formData.location || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Brand
-              </label>
-              <input
-                type="text"
-                name="brand"
-                value={formData.brand || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Buying Price (₹)
-              </label>
-              <input
-                type="number"
-                name="buyingPrice"
-                min="0"
-                step="0.01"
-                value={formData.buyingPrice || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                MRP (₹)
-              </label>
-              <input
-                type="number"
-                name="mrp"
-                min="0"
-                step="0.01"
-                value={formData.mrp || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Supplier
-              </label>
-              <input
-                type="text"
-                name="supplier"
-                value={formData.supplier || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Billing Date
-              </label>
-              <input
-                type="date"
-                name="billingDate"
-                value={formData.billingDate || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Supplier
+                </label>
+                <input
+                  type="text"
+                  name="supplier"
+                  value={formData.supplier || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
             </div>
           </div>
 
+          {/* Quantity & Pricing Section */}
+          <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-200 relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide pl-2">Quantity & Pricing</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="quantity"
+                  required
+                  min="0"
+                  value={formData.quantity || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Unit of Measure <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="unitOfMeasure"
+                  required
+                  value={formData.unitOfMeasure || 'pcs'}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                >
+                  <option value="pcs">Pieces</option>
+                  <option value="kg">Kilograms</option>
+                  <option value="liters">Liters</option>
+                  <option value="meters">Meters</option>
+                  <option value="boxes">Boxes</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Buying Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="buyingPrice"
+                  min="0"
+                  step="0.01"
+                  value={formData.buyingPrice || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  MRP (₹)
+                </label>
+                <input
+                  type="number"
+                  name="mrp"
+                  min="0"
+                  step="0.01"
+                  value={formData.mrp || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Billing Date
+                </label>
+                <input
+                  type="date"
+                  name="billingDate"
+                  value={formData.billingDate || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 text-base border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Description
@@ -461,24 +488,25 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               rows={3}
               value={formData.description || ''}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+              className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors resize-none"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          {/* Part Images */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <label className="block text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
               Part Images
             </label>
             <div className="flex flex-col sm:flex-row gap-3">
               <label
                 htmlFor="part-images-camera"
-                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+                className="w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation transition-colors"
               >
                 Take Photo
               </label>
               <label
                 htmlFor="part-images-gallery"
-                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+                className="w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-lg text-indigo-700 bg-white border border-indigo-300 hover:bg-indigo-50 active:bg-indigo-100 cursor-pointer text-center touch-manipulation transition-colors"
               >
                 Choose from Gallery
               </label>
@@ -503,21 +531,27 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               />
             </div>
             {uploadingImages && (
-              <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+              <div className="flex items-center gap-2 text-sm text-indigo-600 mt-3">
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+              </div>
             )}
             {formData.partImages && formData.partImages.length > 0 && (
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {formData.partImages.map((url, index) => (
-                  <div key={index} className="relative">
+                  <div key={index} className="relative aspect-square bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                     <img
                       src={url}
                       alt={`Part ${index + 1}`}
-                      className="w-full h-24 sm:h-20 object-cover rounded"
+                      className="w-full h-full object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => removeImage(url, 'partImages')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-lg sm:text-xs touch-manipulation"
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-red-600 active:bg-red-700 touch-manipulation shadow-lg transition-colors"
                     >
                       ×
                     </button>
@@ -527,20 +561,21 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          {/* Bill Images */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <label className="block text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
               Bill Images
             </label>
             <div className="flex flex-col sm:flex-row gap-3">
               <label
                 htmlFor="bill-images-camera"
-                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation"
+                className="w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 cursor-pointer text-center touch-manipulation transition-colors"
               >
                 Take Photo
               </label>
               <label
                 htmlFor="bill-images-gallery"
-                className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 cursor-pointer text-center touch-manipulation"
+                className="w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-lg text-indigo-700 bg-white border border-indigo-300 hover:bg-indigo-50 active:bg-indigo-100 cursor-pointer text-center touch-manipulation transition-colors"
               >
                 Choose from Gallery
               </label>
@@ -565,21 +600,27 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               />
             </div>
             {uploadingBills && (
-              <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+              <div className="flex items-center gap-2 text-sm text-indigo-600 mt-3">
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+              </div>
             )}
             {formData.billImages && formData.billImages.length > 0 && (
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {formData.billImages.map((url, index) => (
-                  <div key={index} className="relative">
+                  <div key={index} className="relative aspect-square bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                     <img
                       src={url}
                       alt={`Bill ${index + 1}`}
-                      className="w-full h-24 sm:h-20 object-cover rounded"
+                      className="w-full h-full object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => removeImage(url, 'billImages')}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-lg sm:text-xs touch-manipulation"
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-red-600 active:bg-red-700 touch-manipulation shadow-lg transition-colors"
                     >
                       ×
                     </button>
@@ -589,20 +630,29 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t sticky bottom-0 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6 pb-4 sm:pb-0">
+          {/* Footer Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white -mx-5 sm:-mx-6 px-5 sm:px-6 pb-4">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation min-h-[44px]"
+              className="w-full sm:w-auto px-5 py-3 text-sm font-semibold border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 active:bg-gray-100 touch-manipulation transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-4 py-3 sm:py-2 text-base bg-indigo-600 text-white rounded-md hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 touch-manipulation min-h-[44px] font-medium"
+              className="w-full sm:w-auto px-6 py-3 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-colors shadow-sm inline-flex items-center justify-center gap-2"
             >
-              {loading ? 'Saving...' : part ? 'Update Part' : 'Add Part'}
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving...
+                </>
+              ) : part ? 'Update Part' : 'Add Part'}
             </button>
           </div>
         </form>

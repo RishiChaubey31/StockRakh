@@ -424,16 +424,34 @@ export default function PartDetailPage() {
 
   if (!authenticated || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="flex items-center gap-3">
+          <svg className="animate-spin h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="text-lg text-gray-600">Loading...</span>
+        </div>
       </div>
     );
   }
 
   if (!part) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-gray-500">Part not found</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+        <p className="text-lg font-medium text-gray-900 mb-1">Part not found</p>
+        <p className="text-sm text-gray-500 mb-4">The part you're looking for doesn't exist.</p>
+        <Link
+          href="/parts"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+        >
+          Back to Parts
+        </Link>
       </div>
     );
   }
@@ -441,57 +459,84 @@ export default function PartDetailPage() {
   const displayData = isEditing ? formData : part;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header Section */}
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <Link
-            href="/parts"
-            className="inline-flex items-center gap-2 text-sm sm:text-base text-indigo-600 hover:text-indigo-700 active:text-indigo-800 font-medium transition-colors touch-manipulation"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Parts
-          </Link>
-          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData(part);
-                  }}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 text-sm sm:text-base border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 active:bg-gray-100 font-medium transition-colors touch-manipulation min-h-[44px]"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 text-sm sm:text-base bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors touch-manipulation min-h-[44px] shadow-sm"
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 text-sm sm:text-base bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 font-medium transition-colors touch-manipulation min-h-[44px] shadow-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 text-sm sm:text-base bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 font-medium transition-colors touch-manipulation min-h-[44px] shadow-sm"
-                >
-                  Delete
-                </button>
-              </>
-            )}
+    <div className="min-h-screen bg-gray-100">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <Link
+              href="/parts"
+              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors touch-manipulation"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Parts
+            </Link>
+            <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData(part);
+                    }}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation shadow-sm"
+                  >
+                    {saving ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-colors touch-manipulation shadow-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors touch-manipulation shadow-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Main Content */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -500,7 +545,7 @@ export default function PartDetailPage() {
             <div className="space-y-4">
               <div className="w-full">
                 <div 
-                  className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden mb-4 cursor-pointer relative border-2 border-gray-200 shadow-inner"
+                  className="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-4 cursor-pointer relative border border-gray-200 shadow-sm"
                   onClick={() => !isEditing && displayData?.partImages && displayData.partImages.length > 0 && handleImageClick(0)}
                 >
                   {displayData?.partImages && displayData.partImages.length > 0 ? (
@@ -706,8 +751,9 @@ export default function PartDetailPage() {
               </div>
 
               {/* Pricing Information Card */}
-              <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-5 sm:p-6 border-2 border-indigo-200">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-indigo-300">Pricing</h2>
+              <div className="bg-indigo-50 rounded-xl p-5 sm:p-6 border border-indigo-200 relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-indigo-200 pl-2">Pricing</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Buying Price</label>
