@@ -13,7 +13,7 @@ export const inventoryItemSchema = z.object({
   buyingPrice: z.number().min(0).optional(),
   mrp: z.number().min(0).optional(),
   supplier: z.string().optional(),
-  billingDate: z.string().optional(),
+  billingDate: z.string().nullish(),
   billImages: z.array(z.string().url()).optional(),
 });
 
