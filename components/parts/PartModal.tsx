@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface Part {
   _id?: string;
@@ -45,6 +46,8 @@ export default function PartModal({ part, onClose }: PartModalProps) {
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadingBills, setUploadingBills] = useState(false);
+  const [partNumberExists, setPartNumberExists] = useState(false);
+  const [checkingPartNumber, setCheckingPartNumber] = useState(false);
 
   useEffect(() => {
     if (part) {
@@ -57,10 +60,52 @@ export default function PartModal({ part, onClose }: PartModalProps) {
     }
   }, [part]);
 
+  // Function to check if part number exists
+  const checkPartNumber = async (partNumber: string) => {
+    if (!partNumber || partNumber.trim() === '') {
+      setPartNumberExists(false);
+      return;
+    }
+
+    setCheckingPartNumber(true);
+    try {
+      const params = new URLSearchParams({ partNumber });
+      // If editing, exclude current part from check
+      if (part?._id) {
+        params.append('excludeId', part._id);
+      }
+
+      const response = await fetch(`/api/parts/check-number?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPartNumberExists(data.exists);
+      } else {
+        setPartNumberExists(false);
+      }
+    } catch (error) {
+      console.error('Error checking part number:', error);
+      setPartNumberExists(false);
+    } finally {
+      setCheckingPartNumber(false);
+    }
+  };
+
+  // Debounced version of checkPartNumber
+  const debouncedCheckPartNumber = useDebounce(checkPartNumber, 500);
+
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    
+    // Check part number availability when it changes
+    if (name === 'partNumber') {
+      // Reset state immediately
+      setPartNumberExists(false);
+      // Trigger debounced check
+      debouncedCheckPartNumber(value);
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]:
@@ -249,6 +294,13 @@ export default function PartModal({ part, onClose }: PartModalProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission if part number already exists (for new parts only)
+    if (partNumberExists && !part?._id) {
+      alert('This part number already exists. Please use a different part number.');
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -328,14 +380,33 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Part Number <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="partNumber"
-                  required
-                  value={formData.partNumber || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white transition-colors"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="partNumber"
+                    required
+                    value={formData.partNumber || ''}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 text-base border rounded-xl focus:outline-none focus:ring-2 text-gray-900 bg-white transition-colors ${
+                      partNumberExists
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
+                  />
+                  {checkingPartNumber && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                {partNumberExists && (
+                  <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    This part number already exists in the database
+                  </p>
+                )}
               </div>
 
               <div>
@@ -641,7 +712,7 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (partNumberExists && !part?._id)}
               className="w-full sm:w-auto px-6 py-3 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-colors shadow-sm inline-flex items-center justify-center gap-2"
             >
               {loading ? (
