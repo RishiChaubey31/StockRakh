@@ -49,6 +49,12 @@ export default function PartsPage() {
   const [cardImageIndices, setCardImageIndices] = useState<Record<string, number>>({});
   const [touchStart, setTouchStart] = useState<Record<string, number>>({});
   const [touchEnd, setTouchEnd] = useState<Record<string, number>>({});
+  const [editingQuantity, setEditingQuantity] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ 
+    show: false, 
+    message: '', 
+    type: 'success' 
+  });
 
   useEffect(() => {
     checkAuth();
@@ -181,6 +187,85 @@ export default function PartsPage() {
     }
   };
 
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+    }, 3000);
+  };
+
+  const handleQuantityChange = async (partId: string, newQuantity: number) => {
+    try {
+      // Get current part
+      const part = parts.find((p) => p._id === partId);
+      if (!part) return;
+
+      const response = await fetch(`/api/parts/${partId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...part,
+          quantity: newQuantity,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update quantity');
+      }
+
+      // Update local state
+      setParts(prevParts => 
+        prevParts.map(p => 
+          p._id === partId ? { ...p, quantity: newQuantity } : p
+        )
+      );
+
+      // Show success toast
+      showToast(`Quantity updated to ${newQuantity}`);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      showToast('Failed to update quantity', 'error');
+    }
+  };
+
+  const handleQuantityInputChange = (partId: string, value: string) => {
+    // Allow only numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      setEditingQuantity(prev => ({ ...prev, [partId]: value }));
+    }
+  };
+
+  const handleQuantityBlur = async (partId: string, currentQuantity: number) => {
+    const newValue = editingQuantity[partId];
+    if (newValue !== undefined && newValue !== '') {
+      const newQuantity = parseInt(newValue, 10);
+      if (!isNaN(newQuantity) && newQuantity >= 0 && newQuantity !== currentQuantity) {
+        await handleQuantityChange(partId, newQuantity);
+      }
+    }
+    // Clear editing state
+    setEditingQuantity(prev => {
+      const newState = { ...prev };
+      delete newState[partId];
+      return newState;
+    });
+  };
+
+  const handleQuantityKeyDown = async (e: React.KeyboardEvent, partId: string, currentQuantity: number) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.target as HTMLInputElement).blur();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditingQuantity(prev => {
+        const newState = { ...prev };
+        delete newState[partId];
+        return newState;
+      });
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
   const handleAddImages = async (files: File[]) => {
     if (!imageModal) return;
 
@@ -270,6 +355,15 @@ export default function PartsPage() {
               </p>
             </div>
             <div className="flex gap-2 sm:gap-3">
+              <Link
+                href="/parts/requirement"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium sm:font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors touch-manipulation shadow-sm whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span className="hidden sm:inline">Restock</span>
+              </Link>
               <Link
                 href="/dashboard"
                 className="inline-flex items-center justify-center gap-1.5 px-2.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium sm:font-semibold rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation whitespace-nowrap"
@@ -521,10 +615,37 @@ export default function PartsPage() {
                     <div className="break-words">
                       <span className="text-gray-400">Location:</span> {part.location}
                     </div>
-                    <div className="break-words">
-                      <span className="text-gray-400">Qty:</span> {part.quantity} {part.unitOfMeasure}
+                    <div className="col-span-2 flex items-center gap-2 py-1">
+                      <span className="text-gray-400 text-xs sm:text-sm">Qty:</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={editingQuantity[part._id] !== undefined ? editingQuantity[part._id] : part.quantity}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleQuantityInputChange(part._id, e.target.value);
+                          }}
+                          onBlur={(e) => {
+                            e.stopPropagation();
+                            handleQuantityBlur(part._id, part.quantity);
+                          }}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            handleQuantityKeyDown(e, part._id, part.quantity);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          onFocus={(e) => {
+                            e.stopPropagation();
+                            e.target.select();
+                          }}
+                          className="w-16 px-2 py-1 text-center font-semibold text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                          title="Click to edit quantity"
+                        />
+                        <span className="text-xs text-gray-500">{part.unitOfMeasure}</span>
+                      </div>
                     </div>
-                    <div className="break-words">
+                    <div className="break-words col-span-2">
                       <span className="text-gray-400">MRP:</span>{' '}
                       <span className="font-semibold text-indigo-600">
                         {part.mrp
@@ -611,6 +732,28 @@ export default function PartsPage() {
           onAddImages={handleAddImages}
           isEditable={true}
         />
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 duration-300">
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${
+            toast.type === 'success' 
+              ? 'bg-green-600 text-white' 
+              : 'bg-red-600 text-white'
+          }`}>
+            {toast.type === 'success' ? (
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
       )}
     </div>
   );

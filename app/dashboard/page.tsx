@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 interface DashboardStats {
   totalParts: number;
+  outOfStockCount: number;
   totalValue: number;
   activities: {
     data: Array<{
@@ -135,6 +136,15 @@ export default function DashboardPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
+                href="/parts/requirement"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors touch-manipulation shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Restock Required
+              </Link>
+              <Link
                 href="/parts"
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 transition-colors touch-manipulation shadow-sm"
               >
@@ -163,7 +173,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Total Parts Card */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-md p-5 sm:p-6 relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-l-xl"></div>
@@ -182,6 +192,28 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Out of Stock Card */}
+          <Link
+            href="/parts/requirement"
+            className="bg-white rounded-xl border border-gray-200 shadow-md p-5 sm:p-6 relative overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-l-xl"></div>
+            <div className="flex items-start justify-between">
+              <div className="pl-2">
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Restock Required</p>
+                <p className="mt-2 text-3xl sm:text-4xl font-bold text-red-600">
+                  {stats?.outOfStockCount || 0}
+                </p>
+                <p className="mt-1 text-sm text-gray-500">items out of stock</p>
+              </div>
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+          </Link>
 
           {/* Total Value Card */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-md p-5 sm:p-6 relative overflow-hidden">

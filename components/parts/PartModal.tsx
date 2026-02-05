@@ -111,11 +111,13 @@ export default function PartModal({ part, onClose }: PartModalProps) {
       [name]:
         name === 'quantity' || name === 'buyingPrice' || name === 'mrp'
           ? value === ''
-            ? undefined
+            ? 0 // Set to 0 instead of undefined for quantity when empty
             : parseFloat(value)
           : name === 'code'
-          ? value.toUpperCase().replace(/[^A-Z]/g, '') // Only uppercase letters
-          : value,
+          ? value.toUpperCase().replace(/[^A-Z]/g, '') // Only uppercase letters for code
+          : name === 'billingDate' || name === 'unitOfMeasure'
+          ? value // Keep original case for dates and select fields
+          : value.toUpperCase(), // Convert all other text fields to uppercase
     }));
   };
 

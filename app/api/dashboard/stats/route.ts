@@ -16,6 +16,9 @@ async function handleGET(request: NextRequest, userId: string) {
     // Get total parts count
     const totalParts = await collection.countDocuments();
     
+    // Get out-of-stock count
+    const outOfStockCount = await collection.countDocuments({ quantity: 0 });
+    
     // Calculate total inventory value
     const allParts = await collection.find({}).toArray();
     const totalValue = allParts.reduce((sum, part) => {
@@ -36,6 +39,7 @@ async function handleGET(request: NextRequest, userId: string) {
     
     return NextResponse.json({
       totalParts,
+      outOfStockCount,
       totalValue,
       activities: {
         data: recentActivities,
