@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Plus, LayoutGrid, List, Minus, ImageIcon, Eye, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, LayoutGrid, List, Minus, ImageIcon, Eye, Trash2, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import ImageModal from '@/components/parts/ImageModal';
 import { useToast } from '@/components/ui/Toast';
 import { PartCardSkeleton, PartListRowSkeleton } from '@/components/ui/LoadingSkeleton';
