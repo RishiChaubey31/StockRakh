@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import PartModal from '@/components/parts/PartModal';
 
 export default function NewPartPage() {
@@ -14,14 +13,5 @@ export default function NewPartPage() {
     router.push('/parts');
   };
 
-  return (
-    <>
-      {isModalOpen && (
-        <PartModal
-          part={null}
-          onClose={handleClose}
-        />
-      )}
-    </>
-  );
+  return <>{isModalOpen && <PartModal part={null} onClose={handleClose} />}</>;
 }
