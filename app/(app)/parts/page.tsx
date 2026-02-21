@@ -468,16 +468,16 @@ export default function PartsPage() {
                 )}
               </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+              {/* Info — min-w-0 + truncation so MRP never overlaps quantity stepper */}
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-2 min-w-0">
                   <h3 className="text-sm font-semibold text-slate-900 truncate">{part.partName}</h3>
-                  {part.brand && <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{part.brand}</span>}
+                  {part.brand && <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">{part.brand}</span>}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
-                  <span>{part.partNumber}</span>
-                  <span>{part.location}</span>
-                  <span className="font-semibold text-emerald-700">{priceDisplay(part)}</span>
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 min-w-0">
+                  <span className="truncate">{part.partNumber}</span>
+                  <span className="truncate">{part.location}</span>
+                  <span className="font-semibold text-emerald-700 flex-shrink-0">{priceDisplay(part)}</span>
                 </div>
               </div>
 
@@ -522,7 +522,7 @@ export default function PartsPage() {
       {/* FAB on mobile */}
       <button
         onClick={() => router.push('/parts/new')}
-        className="lg:hidden fixed bottom-20 right-4 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-600/30 flex items-center justify-center hover:bg-emerald-700 active:bg-emerald-800 transition-colors touch-manipulation z-40"
+        className="lg:hidden fixed bottom-[80px] right-4 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-600/30 flex items-center justify-center hover:bg-emerald-700 active:bg-emerald-800 transition-colors touch-manipulation z-40"
       >
         <Plus className="w-6 h-6" />
       </button>

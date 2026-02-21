@@ -310,7 +310,7 @@ export default function RequirementPage() {
 
       {/* Mobile Sticky Bottom Action Bar */}
       {selectedParts.size > 0 && (
-        <div className="sm:hidden fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between pb-safe">
+        <div className="sm:hidden fixed bottom-[64px] left-0 right-0 z-40 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between pb-safe">
           <span className="text-sm font-medium text-slate-700">{selectedParts.size} selected</span>
           <div className="flex gap-2">
             <button onClick={generateOrderList} className="btn-primary text-xs py-2 px-3"><Download className="w-4 h-4" /> Download</button>

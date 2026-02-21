@@ -56,31 +56,33 @@ export default function ImageModal({
   if (!images.length) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[70] flex items-center justify-center p-2 sm:p-4" onClick={onClose}>
       <div className="relative max-w-7xl w-full max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 text-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold truncate">{partName}</h2>
-            <span className="text-sm text-slate-400">{currentIndex + 1} / {images.length}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {isEditable && onAddImages && (
-              <div className="flex items-center gap-2">
-                <label className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer touch-manipulation text-sm flex items-center gap-1.5">
-                  <Camera className="w-4 h-4" /> {uploading ? 'Uploading...' : 'Photo'}
-                  <input type="file" accept="image/*" multiple capture="environment" onChange={handleFileSelect} disabled={uploading} className="hidden" />
-                </label>
-                <label className="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 cursor-pointer touch-manipulation text-sm flex items-center gap-1.5">
-                  <Upload className="w-4 h-4" /> {uploading ? 'Uploading...' : 'Gallery'}
-                  <input type="file" accept="image/*" multiple onChange={handleFileSelect} disabled={uploading} className="hidden" />
-                </label>
-              </div>
-            )}
-            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors touch-manipulation">
-              <X className="w-6 h-6" />
+        <div className="mb-2 sm:mb-4 text-white space-y-2">
+          {/* Row 1: title + counter + close */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-sm sm:text-lg font-semibold truncate">{partName}</h2>
+              <span className="text-xs sm:text-sm text-slate-400 shrink-0">{currentIndex + 1}/{images.length}</span>
+            </div>
+            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors touch-manipulation shrink-0 ml-2">
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
+          {/* Row 2: upload buttons (only when editable) */}
+          {isEditable && onAddImages && (
+            <div className="flex items-center gap-2">
+              <label className="px-3 py-1.5 sm:py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer touch-manipulation text-xs sm:text-sm flex items-center gap-1.5 min-h-[36px]">
+                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {uploading ? 'Uploading...' : 'Photo'}
+                <input type="file" accept="image/*" multiple capture="environment" onChange={handleFileSelect} disabled={uploading} className="hidden" />
+              </label>
+              <label className="px-3 py-1.5 sm:py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 cursor-pointer touch-manipulation text-xs sm:text-sm flex items-center gap-1.5 min-h-[36px]">
+                <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {uploading ? 'Uploading...' : 'Gallery'}
+                <input type="file" accept="image/*" multiple onChange={handleFileSelect} disabled={uploading} className="hidden" />
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Image */}
@@ -113,7 +115,7 @@ export default function ImageModal({
           <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
             {images.map((img, idx) => (
               <button key={idx} onClick={() => setCurrentIndex(idx)}
-                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                className={`shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
                   idx === currentIndex ? 'border-emerald-500 ring-2 ring-emerald-300' : 'border-transparent hover:border-slate-400'
                 }`}>
                 <img src={img} alt="" className="w-full h-full object-cover" />

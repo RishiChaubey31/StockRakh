@@ -144,21 +144,21 @@ export default function PartModal({ part, onClose }: PartModalProps) {
     finally { setLoading(false); }
   };
 
-  const inputClass = "w-full px-4 py-3 text-base border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
-  const pricingInputClass = "w-full px-4 py-3 text-base border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
+  const inputClass = "w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
+  const pricingInputClass = "w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-0 sm:p-4">
+      <div className="bg-white rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-slate-200 px-5 sm:px-6 py-4 flex justify-between items-center z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Package className="w-5 h-5 text-emerald-600" />
+        <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900">{part ? 'Edit Part' : 'Add New Part'}</h2>
-              <p className="text-sm text-slate-500">{part ? 'Update part information' : 'Fill in the details below'}</p>
+              <h2 className="text-base sm:text-xl font-bold text-slate-900">{part ? 'Edit Part' : 'Add New Part'}</h2>
+              <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">{part ? 'Update part information' : 'Fill in the details below'}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 w-10 h-10 flex items-center justify-center touch-manipulation rounded-lg hover:bg-slate-100 transition-colors">
@@ -166,10 +166,10 @@ export default function PartModal({ part, onClose }: PartModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
+        <form id="part-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Basic Information */}
-          <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-900 mb-4 uppercase tracking-wide">Basic Information</h3>
+          <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
+            <h3 className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 sm:mb-4 uppercase tracking-wide">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Part Name <span className="text-rose-500">*</span></label>
@@ -206,9 +206,9 @@ export default function PartModal({ part, onClose }: PartModalProps) {
           </div>
 
           {/* Quantity & Pricing */}
-          <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 relative overflow-hidden">
+          <div className="bg-emerald-50 rounded-xl p-3.5 sm:p-5 border border-emerald-200 relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
-            <h3 className="text-sm font-semibold text-slate-900 mb-4 uppercase tracking-wide pl-2">Quantity & Pricing</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 sm:mb-4 uppercase tracking-wide pl-2">Quantity & Pricing</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Quantity <span className="text-rose-500">*</span></label>
@@ -243,8 +243,8 @@ export default function PartModal({ part, onClose }: PartModalProps) {
           </div>
 
           {/* Part Images */}
-          <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-            <label className="block text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Part Images</label>
+          <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
+            <label className="block text-xs sm:text-sm font-semibold text-slate-900 mb-2 sm:mb-3 uppercase tracking-wide">Part Images</label>
             <div className="flex flex-col sm:flex-row gap-2">
               <label className="btn-primary text-sm cursor-pointer text-center">
                 <Camera className="w-4 h-4" /> Take Photo
@@ -270,8 +270,8 @@ export default function PartModal({ part, onClose }: PartModalProps) {
           </div>
 
           {/* Bill Images */}
-          <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-            <label className="block text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Bill Images</label>
+          <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
+            <label className="block text-xs sm:text-sm font-semibold text-slate-900 mb-2 sm:mb-3 uppercase tracking-wide">Bill Images</label>
             <div className="flex flex-col sm:flex-row gap-2">
               <label className="btn-primary text-sm cursor-pointer text-center">
                 <Camera className="w-4 h-4" /> Take Photo
@@ -296,16 +296,24 @@ export default function PartModal({ part, onClose }: PartModalProps) {
             ) : null}
           </div>
 
-          {/* Footer */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-200 sticky bottom-0 bg-white -mx-5 sm:-mx-6 px-5 sm:px-6 pb-4">
-            <button type="button" onClick={onClose} className="btn-secondary w-full sm:w-auto py-3">Cancel</button>
-            <button type="submit" disabled={loading || (partNumberExists && !part?._id)} className="btn-primary w-full sm:w-auto py-3">
-              {loading ? (
-                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-              ) : part ? 'Update Part' : 'Add Part'}
-            </button>
-          </div>
+          {/* Spacer so content doesn't hide behind fixed footer on mobile */}
+          <div className="h-20 sm:hidden" />
         </form>
+
+        {/* Footer - fixed at bottom on mobile, inline on desktop */}
+        <div className="flex-shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 border-t border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 pb-safe">
+          <button type="button" onClick={onClose} className="btn-secondary w-full sm:w-auto py-2.5 sm:py-3 text-sm">Cancel</button>
+          <button
+            type="submit"
+            form="part-form"
+            disabled={loading || (partNumberExists && !part?._id)}
+            className="btn-primary w-full sm:w-auto py-2.5 sm:py-3 text-sm"
+          >
+            {loading ? (
+              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+            ) : part ? 'Update Part' : 'Add Part'}
+          </button>
+        </div>
       </div>
     </div>
   );

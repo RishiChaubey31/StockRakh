@@ -228,21 +228,21 @@ export default function PartDetailPage() {
         <div className="flex gap-2">
           {isEditing ? (
             <>
-              <button onClick={() => { setIsEditing(false); setFormData(part); }} className="btn-secondary text-xs sm:text-sm py-2 px-3">
-                <X className="w-4 h-4" /> Cancel
+              <button onClick={() => { setIsEditing(false); setFormData(part); }} className="btn-secondary text-xs sm:text-sm min-h-[44px] py-2 px-3">
+                <X className="w-4 h-4" /> <span className="hidden sm:inline">Cancel</span>
               </button>
-              <button onClick={handleSave} disabled={saving} className="btn-primary text-xs sm:text-sm py-2 px-3">
+              <button onClick={handleSave} disabled={saving} className="btn-primary text-xs sm:text-sm min-h-[44px] py-2 px-3">
                 {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
                 {saving ? 'Saving...' : 'Save'}
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setIsEditing(true)} className="btn-primary text-xs sm:text-sm py-2 px-3">
+              <button onClick={() => setIsEditing(true)} className="btn-primary text-xs sm:text-sm min-h-[44px] py-2 px-3">
                 <Edit3 className="w-4 h-4" /> Edit
               </button>
-              <button onClick={handleDelete} className="btn-danger text-xs sm:text-sm py-2 px-3">
-                <Trash2 className="w-4 h-4" /> Delete
+              <button onClick={handleDelete} className="btn-danger text-xs sm:text-sm min-h-[44px] py-2 px-3">
+                <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Delete</span>
               </button>
             </>
           )}
@@ -255,7 +255,7 @@ export default function PartDetailPage() {
             {/* Left - Images */}
             <div className="p-4 sm:p-6">
               <div
-                className="aspect-square bg-slate-50 rounded-xl overflow-hidden mb-4 cursor-pointer relative border border-slate-200"
+                className="aspect-square max-h-[50vh] sm:max-h-none bg-slate-50 rounded-xl overflow-hidden mb-4 cursor-pointer relative border border-slate-200"
                 onClick={() => !isEditing && d?.partImages?.length && setImageModal({ open: true, images: d.partImages, currentIndex: 0 })}
               >
                 {d?.partImages?.length ? (
@@ -323,10 +323,10 @@ export default function PartDetailPage() {
               </div>
 
               {/* Tabs (mobile) */}
-              <div className="flex border-b border-slate-200 mb-5 overflow-x-auto sm:hidden">
+              <div className="flex border-b border-slate-200 mb-4 sm:hidden">
                 {tabs.map(tab => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                    className={`flex-1 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors min-h-[44px] touch-manipulation ${activeTab === tab.id ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500 hover:text-slate-700'}`}>
                     {tab.label}
                   </button>
                 ))}
