@@ -101,7 +101,7 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between">
                 <div className="pl-2">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Parts</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">{stats?.totalParts || 0}</p>
+                  <p className="mt-1.5 text-2xl sm:text-3xl font-bold text-slate-900">{stats?.totalParts || 0}</p>
                   <p className="mt-1 text-xs text-slate-500">items in inventory</p>
                 </div>
                 <div className="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -115,7 +115,7 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between">
                 <div className="pl-2">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Restock Required</p>
-                  <p className="mt-2 text-3xl font-bold text-rose-600">{stats?.outOfStockCount || 0}</p>
+                  <p className="mt-1.5 text-2xl sm:text-3xl font-bold text-rose-600">{stats?.outOfStockCount || 0}</p>
                   <p className="mt-1 text-xs text-slate-500">items out of stock</p>
                 </div>
                 <div className="w-11 h-11 bg-rose-100 rounded-xl flex items-center justify-center">
@@ -144,37 +144,37 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
         <Link
           href="/parts/new"
-          className="flex items-center gap-3 p-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
+          className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
         >
-          <PlusCircle className="w-5 h-5" />
-          <div>
-            <p className="text-sm font-semibold">Add New Part</p>
-            <p className="text-xs text-emerald-200">Create inventory item</p>
+          <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-semibold truncate">Add New Part</p>
+            <p className="text-[10px] sm:text-xs text-emerald-200 hidden sm:block">Create inventory item</p>
           </div>
         </Link>
         <Link
           href="/parts/requirement"
-          className="flex items-center gap-3 p-4 bg-white border border-slate-200/60 text-slate-900 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+          className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-4 bg-white border border-slate-200/60 text-slate-900 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
         >
-          <TrendingUp className="w-5 h-5 text-rose-500" />
-          <div>
-            <p className="text-sm font-semibold">View Restock</p>
-            <p className="text-xs text-slate-500">Out of stock items</p>
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-semibold truncate">View Restock</p>
+            <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">Out of stock items</p>
           </div>
         </Link>
       </div>
 
       {/* Recent Activities */}
       <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
-        <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center gap-3">
-          <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
-            <Clock className="w-4 h-4 text-slate-600" />
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center gap-2.5 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Recent Activities</h2>
+            <h2 className="text-sm sm:text-base font-semibold text-slate-900">Recent Activities</h2>
             {stats?.activities.pagination && (
               <p className="text-xs text-slate-500">
                 {stats.activities.pagination.total} total activities
@@ -216,19 +216,20 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {stats?.activities.pagination && stats.activities.pagination.totalPages > 1 && (
-          <div className="border-t border-slate-200 p-4">
-            <Pagination
-              currentPage={activityPage}
-              totalPages={stats.activities.pagination.totalPages}
-              totalItems={stats.activities.pagination.total}
-              itemsPerPage={activitiesPerPage}
-              onPageChange={setActivityPage}
-              itemLabel="activities"
-            />
-          </div>
-        )}
       </div>
+
+      {stats?.activities.pagination && stats.activities.pagination.totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={activityPage}
+            totalPages={stats.activities.pagination.totalPages}
+            totalItems={stats.activities.pagination.total}
+            itemsPerPage={activitiesPerPage}
+            onPageChange={setActivityPage}
+            itemLabel="activities"
+          />
+        </div>
+      )}
     </div>
   );
 }
