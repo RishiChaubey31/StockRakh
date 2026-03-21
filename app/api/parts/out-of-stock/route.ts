@@ -1,8 +1,9 @@
+import type { Filter } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth';
-import { getInventoryCollection } from '@/lib/models/inventory';
+import { getInventoryCollection, type InventoryItem } from '@/lib/models/inventory';
 
-async function handleGET(request: NextRequest, userId: string) {
+async function handleGET(request: NextRequest, _userId: string) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
@@ -14,8 +15,7 @@ async function handleGET(request: NextRequest, userId: string) {
     
     const collection = await getInventoryCollection();
     
-    // Build query - only items with quantity = 0
-    const query: any = { quantity: 0 };
+    const query: Filter<InventoryItem> = { quantity: 0 };
     
     // Add supplier filter if provided
     if (supplier && supplier !== 'all') {

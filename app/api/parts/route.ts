@@ -4,11 +4,11 @@ import { getInventoryCollection } from '@/lib/models/inventory';
 import { inventoryItemSchema } from '@/lib/validators/inventory';
 import { createActivity } from '@/lib/models/activity';
 
-async function handleGET(request: NextRequest, userId: string) {
+async function handleGET(request: NextRequest, _userId: string) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '20', 20);
+    const limit = parseInt(searchParams.get('limit') || '20', 10);
     const skip = (page - 1) * limit;
     
     const collection = await getInventoryCollection();
@@ -42,7 +42,7 @@ async function handleGET(request: NextRequest, userId: string) {
   }
 }
 
-async function handlePOST(request: NextRequest, userId: string) {
+async function handlePOST(request: NextRequest, _userId: string) {
   try {
     const body = await request.json();
     
@@ -68,8 +68,8 @@ async function handlePOST(request: NextRequest, userId: string) {
       success: true, 
       part: { ...newPart, _id: result.insertedId } 
     }, { status: 201 });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError' && 'errors' in error) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
         { status: 400 }

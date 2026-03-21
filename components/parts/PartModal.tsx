@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
-import { Package, X, Camera, Upload, AlertCircle } from 'lucide-react';
+import { Package, X, Camera, Upload, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface Part {
   _id?: string;
@@ -25,9 +25,25 @@ interface Part {
 interface PartModalProps {
   part: Part | null;
   onClose: () => void;
+  presentation?: 'modal' | 'page';
 }
 
-export default function PartModal({ part, onClose }: PartModalProps) {
+const formFieldOrder = [
+  'partName',
+  'partNumber',
+  'code',
+  'brand',
+  'location',
+  'supplier',
+  'quantity',
+  'unitOfMeasure',
+  'buyingPrice',
+  'mrp',
+  'billingDate',
+  'description',
+] as const;
+
+export default function PartModal({ part, onClose, presentation = 'modal' }: PartModalProps) {
   const [formData, setFormData] = useState<Partial<Part>>({
     partName: '', partNumber: '', code: '', quantity: 0, location: '',
     unitOfMeasure: 'pcs', brand: '', description: '', buyingPrice: undefined,
@@ -38,6 +54,7 @@ export default function PartModal({ part, onClose }: PartModalProps) {
   const [uploadingBills, setUploadingBills] = useState(false);
   const [partNumberExists, setPartNumberExists] = useState(false);
   const [checkingPartNumber, setCheckingPartNumber] = useState(false);
+  const isPage = presentation === 'page';
 
   useEffect(() => {
     if (part) {
@@ -74,6 +91,37 @@ export default function PartModal({ part, onClose }: PartModalProps) {
           : name === 'billingDate' || name === 'unitOfMeasure' ? value
           : value.toUpperCase(),
     }));
+  };
+
+  const focusNextField = (currentName: string) => {
+    const currentIndex = formFieldOrder.indexOf(currentName as typeof formFieldOrder[number]);
+    const nextName = formFieldOrder[currentIndex + 1];
+    if (!nextName) return;
+
+    const nextField = document.querySelector<HTMLElement>(`[data-field-name="${nextName}"]`);
+    nextField?.focus();
+
+    if (nextField instanceof HTMLInputElement || nextField instanceof HTMLTextAreaElement) {
+      nextField.select();
+    }
+  };
+
+  const handleFieldKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+
+    const tagName = e.currentTarget.tagName.toLowerCase();
+    const name = e.currentTarget.getAttribute('name');
+
+    if (tagName === 'textarea' || !name) return;
+
+    e.preventDefault();
+    focusNextField(name);
+  };
+
+  const handleFieldFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    window.setTimeout(() => {
+      e.currentTarget.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 150);
   };
 
   const compressImage = (file: File, maxWidth = 1920, quality = 0.8): Promise<File> =>
@@ -122,7 +170,9 @@ export default function PartModal({ part, onClose }: PartModalProps) {
       if (part?._id) {
         await fetch(`/api/parts/${part._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
       }
-    } catch (err: any) { alert(err.message || 'Upload failed'); }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    }
     finally { setUploading(false); e.target.value = ''; }
   };
 
@@ -140,45 +190,52 @@ export default function PartModal({ part, onClose }: PartModalProps) {
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
       if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed'); }
       onClose();
-    } catch (err: any) { alert(err.message || 'Failed to save'); }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to save');
+    }
     finally { setLoading(false); }
   };
 
-  const inputClass = "w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
-  const pricingInputClass = "w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors";
+  const inputClass = 'w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors';
+  const pricingInputClass = 'w-full px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white transition-colors';
+  const wrapperClass = isPage
+    ? 'min-h-screen bg-slate-50'
+    : 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-0 sm:p-4';
+  const panelClass = isPage
+    ? 'bg-white min-h-screen w-full flex flex-col'
+    : 'bg-white rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col';
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-0 sm:p-4">
-      <div className="bg-white rounded-none sm:rounded-2xl max-w-4xl w-full h-full sm:h-auto sm:max-h-[90vh] shadow-2xl flex flex-col">
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center flex-shrink-0">
+    <div className={wrapperClass}>
+      <div className={panelClass}>
+        <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center flex-shrink-0 sticky top-0 z-10">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <Package className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
             </div>
             <div>
               <h2 className="text-base sm:text-xl font-bold text-slate-900">{part ? 'Edit Part' : 'Add New Part'}</h2>
-              <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">{part ? 'Update part information' : 'Fill in the details below'}</p>
+              <p className="text-xs sm:text-sm text-slate-500">{part ? 'Update part information' : 'Use Next on your keyboard to move through fields faster'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 w-10 h-10 flex items-center justify-center touch-manipulation rounded-lg hover:bg-slate-100 transition-colors">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 min-w-10 h-10 px-2 flex items-center justify-center gap-1.5 touch-manipulation rounded-lg hover:bg-slate-100 transition-colors">
+            {isPage ? <ArrowLeft className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            {isPage && <span className="text-sm font-medium text-slate-600">Back</span>}
           </button>
         </div>
 
-        <form id="part-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
-          {/* Basic Information */}
+        <form id="part-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 pb-28 sm:pb-6">
           <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
             <h3 className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 sm:mb-4 uppercase tracking-wide">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Part Name <span className="text-rose-500">*</span></label>
-                <input type="text" name="partName" required value={formData.partName || ''} onChange={handleInputChange} className={inputClass} />
+                <input type="text" name="partName" required value={formData.partName || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="partName" className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Part Number <span className="text-rose-500">*</span></label>
                 <div className="relative">
-                  <input type="text" name="partNumber" required value={formData.partNumber || ''} onChange={handleInputChange}
+                  <input type="text" name="partNumber" required value={formData.partNumber || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="partNumber"
                     className={`${inputClass} ${partNumberExists ? 'border-rose-500 focus:ring-rose-500' : ''}`} />
                   {checkingPartNumber && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /></div>}
                 </div>
@@ -188,61 +245,62 @@ export default function PartModal({ part, onClose }: PartModalProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Code</label>
-                <input type="text" name="code" value={formData.code || ''} onChange={handleInputChange} placeholder="Uppercase letters" className={`${inputClass} font-mono uppercase`} />
+                <input type="text" name="code" value={formData.code || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="code" placeholder="Uppercase letters" className={`${inputClass} font-mono uppercase`} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Brand</label>
-                <input type="text" name="brand" value={formData.brand || ''} onChange={handleInputChange} className={inputClass} />
+                <input type="text" name="brand" value={formData.brand || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="brand" className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Location <span className="text-rose-500">*</span></label>
-                <input type="text" name="location" required value={formData.location || ''} onChange={handleInputChange} className={inputClass} />
+                <input type="text" name="location" required value={formData.location || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="location" className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Supplier</label>
-                <input type="text" name="supplier" value={formData.supplier || ''} onChange={handleInputChange} className={inputClass} />
+                <input type="text" name="supplier" value={formData.supplier || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="supplier" className={inputClass} />
               </div>
             </div>
           </div>
 
-          {/* Quantity & Pricing */}
           <div className="bg-emerald-50 rounded-xl p-3.5 sm:p-5 border border-emerald-200 relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
             <h3 className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 sm:mb-4 uppercase tracking-wide pl-2">Quantity & Pricing</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Quantity <span className="text-rose-500">*</span></label>
-                <input type="number" name="quantity" required min="0" value={formData.quantity || ''} onChange={handleInputChange} className={pricingInputClass} />
+                <input type="number" name="quantity" required min="0" value={formData.quantity || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="quantity" className={pricingInputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Unit of Measure <span className="text-rose-500">*</span></label>
-                <select name="unitOfMeasure" required value={formData.unitOfMeasure || 'pcs'} onChange={handleInputChange} className={pricingInputClass}>
-                  <option value="pcs">Pieces</option><option value="kg">Kilograms</option><option value="liters">Liters</option><option value="meters">Meters</option><option value="boxes">Boxes</option>
+                <select name="unitOfMeasure" required value={formData.unitOfMeasure || 'pcs'} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} data-field-name="unitOfMeasure" className={pricingInputClass}>
+                  <option value="pcs">Pieces</option>
+                  <option value="kg">Kilograms</option>
+                  <option value="liters">Liters</option>
+                  <option value="meters">Meters</option>
+                  <option value="boxes">Boxes</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Buying Price (₹)</label>
-                <input type="number" name="buyingPrice" min="0" step="0.01" value={formData.buyingPrice || ''} onChange={handleInputChange} className={pricingInputClass} />
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Buying Price (Rs)</label>
+                <input type="number" name="buyingPrice" min="0" step="0.01" value={formData.buyingPrice || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="buyingPrice" className={pricingInputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">MRP (₹)</label>
-                <input type="number" name="mrp" min="0" step="0.01" value={formData.mrp || ''} onChange={handleInputChange} className={pricingInputClass} />
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">MRP (Rs)</label>
+                <input type="number" name="mrp" min="0" step="0.01" value={formData.mrp || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="mrp" className={pricingInputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Billing Date</label>
-                <input type="date" name="billingDate" value={formData.billingDate || ''} onChange={handleInputChange} className={pricingInputClass} />
+                <input type="date" name="billingDate" value={formData.billingDate || ''} onChange={handleInputChange} onKeyDown={handleFieldKeyDown} onFocus={handleFieldFocus} enterKeyHint="next" data-field-name="billingDate" className={pricingInputClass} />
               </div>
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
-            <textarea name="description" rows={3} value={formData.description || ''} onChange={handleInputChange}
+            <textarea name="description" rows={3} value={formData.description || ''} onChange={handleInputChange} onFocus={handleFieldFocus} data-field-name="description"
               className="w-full px-4 py-3 text-base border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 bg-white resize-none" />
           </div>
 
-          {/* Part Images */}
           <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
             <label className="block text-xs sm:text-sm font-semibold text-slate-900 mb-2 sm:mb-3 uppercase tracking-wide">Part Images</label>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -262,14 +320,13 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                   <div key={i} className="relative aspect-square bg-white rounded-lg overflow-hidden border border-slate-200">
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => removeImage(url, 'partImages')}
-                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-rose-600 touch-manipulation shadow">×</button>
+                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-rose-600 touch-manipulation shadow">x</button>
                   </div>
                 ))}
               </div>
             ) : null}
           </div>
 
-          {/* Bill Images */}
           <div className="bg-slate-50 rounded-xl p-3.5 sm:p-5 border border-slate-200">
             <label className="block text-xs sm:text-sm font-semibold text-slate-900 mb-2 sm:mb-3 uppercase tracking-wide">Bill Images</label>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -289,19 +346,15 @@ export default function PartModal({ part, onClose }: PartModalProps) {
                   <div key={i} className="relative aspect-square bg-white rounded-lg overflow-hidden border border-slate-200">
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => removeImage(url, 'billImages')}
-                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-rose-600 touch-manipulation shadow">×</button>
+                      className="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-rose-600 touch-manipulation shadow">x</button>
                   </div>
                 ))}
               </div>
             ) : null}
           </div>
-
-          {/* Spacer so content doesn't hide behind fixed footer on mobile */}
-          <div className="h-20 sm:hidden" />
         </form>
 
-        {/* Footer - fixed at bottom on mobile, inline on desktop */}
-        <div className="flex-shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 border-t border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 pb-safe">
+        <div className={`flex-shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 border-t border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 pb-safe ${isPage ? 'sticky bottom-0 z-10 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]' : ''}`}>
           <button type="button" onClick={onClose} className="btn-secondary w-full sm:w-auto py-2.5 sm:py-3 text-sm">Cancel</button>
           <button
             type="submit"

@@ -21,37 +21,47 @@ export default function TopBar() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6 flex-shrink-0">
-      {/* Mobile brand */}
-      <div className="lg:hidden flex items-center gap-2">
-        <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-          <Package className="w-4 h-4 text-white" />
+    <header
+      className="flex h-16 w-full min-w-0 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-3 sm:gap-3 sm:px-5 lg:px-6"
+      style={{
+        paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+      }}
+    >
+      {/* Mobile / tablet brand (sidebar hidden) — flex-1 + truncate on xs so logout stays on-screen */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-44 sm:flex-none lg:hidden">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600">
+          <Package className="h-4 w-4 text-white" />
         </div>
-        <span className="font-bold text-sm text-slate-900">StockRakh</span>
+        <span className="min-w-0 truncate text-sm font-bold text-slate-900">StockRakh</span>
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto hidden sm:block">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <form
+        onSubmit={handleSearch}
+        className="mx-auto hidden min-w-0 max-w-xl flex-1 sm:block lg:min-w-48"
+      >
+        <div className="relative min-w-0">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search parts by name, number, code..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors"
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
       </form>
 
-      {/* Actions */}
-      <div className="ml-auto flex items-center gap-2">
+      {/* Actions — always full visibility on small screens */}
+      <div className="ml-auto flex shrink-0 items-center">
         <button
+          type="button"
           onClick={handleLogout}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors touch-manipulation"
+          className="inline-flex touch-manipulation items-center justify-center gap-1.5 rounded-lg p-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:gap-2 sm:px-3 sm:py-2"
           title="Logout"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="h-4 w-4 shrink-0" aria-hidden />
           <span className="hidden sm:inline">Logout</span>
         </button>
       </div>

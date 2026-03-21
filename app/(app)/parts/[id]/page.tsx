@@ -131,8 +131,8 @@ export default function PartDetailPage() {
       await fetch(`/api/parts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
       await fetchPart();
       toast('Images uploaded');
-    } catch (err: any) {
-      toast(err.message || 'Upload failed', 'error');
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Upload failed', 'error');
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -349,7 +349,7 @@ export default function PartDetailPage() {
                         <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{field.label}</label>
                         {isEditing ? (
                           <input type={field.type || 'text'} name={field.name}
-                            value={(formData as any)[field.name] ?? ''}
+                            value={String((formData as Record<string, unknown>)[field.name] ?? '')}
                             onChange={handleInputChange}
                             placeholder={field.placeholder}
                             className={`w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 bg-white ${field.mono ? 'font-mono uppercase' : ''}`} />

@@ -1,13 +1,12 @@
+import type { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/db/mongodb';
 
 export type ActivityType = 'add' | 'edit' | 'delete' | 'quantity_change';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Activity {
-  _id?: any;
+  _id?: ObjectId;
   type: ActivityType;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  partId?: any | string;
+  partId?: ObjectId | string;
   partName: string;
   partNumber: string;
   details?: string;
@@ -16,7 +15,6 @@ export interface Activity {
 
 export async function getActivityCollection() {
   const db = await getDb();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return db.collection<Activity>('activities');
 }
 
@@ -24,8 +22,7 @@ export async function createActivity(
   type: ActivityType,
   partName: string,
   partNumber: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  partId?: any | string,
+  partId?: ObjectId | string,
   details?: string
 ) {
   const collection = await getActivityCollection();

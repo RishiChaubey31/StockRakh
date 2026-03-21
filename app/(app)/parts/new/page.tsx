@@ -13,5 +13,5 @@ export default function NewPartPage() {
     router.push('/parts');
   };
 
-  return <>{isModalOpen && <PartModal part={null} onClose={handleClose} />}</>;
+  return <>{isModalOpen && <PartModal part={null} onClose={handleClose} presentation="page" />}</>;
 }

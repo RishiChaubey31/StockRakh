@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/middleware/auth';
 import { getInventoryCollection } from '@/lib/models/inventory';
 import { getActivityCollection } from '@/lib/models/activity';
 
-async function handleGET(request: NextRequest, userId: string) {
+async function handleGET(request: NextRequest, _userId: string) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);

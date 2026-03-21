@@ -1,8 +1,8 @@
+import type { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/db/mongodb';
 
-// Use any for ObjectId type to avoid static import issues with Turbopack
 export interface InventoryItem {
-  _id?: any;
+  _id?: ObjectId;
   partName: string;
   partNumber: string;
   code?: string;
