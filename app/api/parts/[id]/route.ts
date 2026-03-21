@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth';
 import { getInventoryCollection } from '@/lib/models/inventory';
+import { ZodError } from 'zod';
 import { inventoryItemSchema } from '@/lib/validators/inventory';
 import { createActivity } from '@/lib/models/activity';
 import { deleteMultipleImagesByUrls } from '@/lib/services/cloudinary';
 
 async function handleGET(
   request: NextRequest,
-  userId: string,
+  _userId: string,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -39,7 +40,7 @@ async function handleGET(
 
 async function handlePUT(
   request: NextRequest,
-  userId: string,
+  _userId: string,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -111,10 +112,10 @@ async function handlePUT(
       success: true,
       imagesDeleted: removedImages.length
     });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: error.issues },
         { status: 400 }
       );
     }
@@ -128,7 +129,7 @@ async function handlePUT(
 
 async function handleDELETE(
   request: NextRequest,
-  userId: string,
+  _userId: string,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

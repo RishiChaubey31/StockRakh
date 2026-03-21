@@ -2,19 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth';
 import { getInventoryCollection } from '@/lib/models/inventory';
 
-async function handleGET(request: NextRequest, userId: string) {
+async function handleGET(request: NextRequest, _userId: string) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '20', 20);
+    const limit = parseInt(searchParams.get('limit') || '20', 10);
     const skip = (page - 1) * limit;
     
     const collection = await getInventoryCollection();
     
-    let filter: any = {};
-    let total: number;
-    let parts;
+    let filter: Record<string, unknown> = {};
     
     if (query.trim()) {
       // Text search across multiple fields
@@ -32,10 +30,10 @@ async function handleGET(request: NextRequest, userId: string) {
     }
     
     // Get total count
-    total = await collection.countDocuments(filter);
+    const total = await collection.countDocuments(filter);
     
     // Get paginated parts
-    parts = await collection
+    const parts = await collection
       .find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)

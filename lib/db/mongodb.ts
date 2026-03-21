@@ -13,7 +13,7 @@ function getClientPromise(): Promise<MongoClient> {
 
   // Use global variable in development to prevent multiple connections during HMR
   if (typeof global !== 'undefined' && process.env.NODE_ENV === 'development') {
-    let globalWithMongo = global as typeof globalThis & {
+    const globalWithMongo = global as typeof globalThis & {
       _mongoClientPromise?: Promise<MongoClient>;
     };
 
