@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, LogOut, Package } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, LogOut, Package, ArrowLeft } from 'lucide-react';
 
 export default function TopBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
+  const showBackButton = pathname === '/parts/new';
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,10 @@ export default function TopBar() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const handleBack = () => {
+    router.push('/parts');
   };
 
   return (
@@ -54,7 +60,18 @@ export default function TopBar() {
       </form>
 
       {/* Actions — always full visibility on small screens */}
-      <div className="ml-auto flex shrink-0 items-center">
+      <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+        {showBackButton && (
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex touch-manipulation items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:px-3"
+            title="Back to parts"
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="hidden sm:inline">Back</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={handleLogout}
