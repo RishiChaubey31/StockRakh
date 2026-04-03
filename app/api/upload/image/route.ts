@@ -9,20 +9,11 @@ async function handlePOST(request: NextRequest, _userId: string) {
     const folder = (formData.get('folder') as string) || 'inventory';
     
     if (!file) {
-      console.error('No file provided in request');
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       );
     }
-
-    // Log file info for debugging
-    console.log('Uploading file:', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      folder: folder
-    });
     
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -42,10 +33,8 @@ async function handlePOST(request: NextRequest, _userId: string) {
     }
     
     const buffer = Buffer.from(await file.arrayBuffer());
-    console.log('File buffer created, size:', buffer.length);
     
     const url = await uploadImage(buffer, folder);
-    console.log('Image uploaded successfully, URL:', url);
     
     return NextResponse.json({ url });
   } catch (error: unknown) {

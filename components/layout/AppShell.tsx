@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
@@ -12,9 +12,11 @@ interface AppShellProps {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const hideBottomNav = pathname === '/parts/new';
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -47,18 +49,18 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-slate-50">
+    <div className="flex h-[100dvh] min-h-[100dvh] overflow-hidden bg-slate-50">
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar />
 
-        <main className="flex-1 overflow-y-auto mb-bottom-nav lg:mb-0">
+        <main className={`flex-1 overflow-y-auto ${hideBottomNav ? '' : 'mb-bottom-nav'} lg:mb-0`}>
           {children}
         </main>
       </div>
 
-      <BottomNav />
+      {!hideBottomNav && <BottomNav />}
     </div>
   );
 }
